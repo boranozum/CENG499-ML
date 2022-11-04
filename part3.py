@@ -3,6 +3,11 @@ import torch.nn as nn
 import numpy as np
 import pickle
 
+class MLPModel(nn.module):
+    def __init__(self,parameter1, parameter2):
+        super(MLPModel, self).__init__()
+
+
 # we load all the datasets of Part 3
 x_train, y_train = pickle.load(open("data/mnist_train.data", "rb"))
 x_validation, y_validation = pickle.load(open("data/mnist_validation.data", "rb"))

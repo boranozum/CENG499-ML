@@ -11,7 +11,41 @@ def forward_pass(w1, b1, w2, b2, input_data):
     The output layer should apply the softmax function to obtain posterior probability distribution. And the function should return this distribution
     Here you are expected to perform all the required operations for a forward pass over the network with the given dataset
     """
-    ...
+    w_temp = w1.reshape((4, 16))
+
+    b_0 = w_temp[[0]] * b1
+
+    x_1 = w_temp[[1]] * input_data[:, [0]]
+    x_2 = w_temp[[2]] * input_data[:, [1]]
+    x_3 = w_temp[[3]] * input_data[:, [2]]
+
+    O_1 = torch.sigmoid(b_0 + x_1 + x_2 + x_3)
+
+    w2_temp = w2.reshape((3,17))
+
+    X_0 = b2*w2_temp[0][0] + O_1*w2_temp[0][1:]
+    X_1 = b2*w2_temp[1][0] + O_1*w2_temp[1][1:]
+    X_2 = b2*w2_temp[2][2] + O_1*w2_temp[2][1:]
+
+    X_0 = torch.sum(X_0,dim=1)
+    X_1 = torch.sum(X_1,dim=1)
+    X_2 = torch.sum(X_2,dim=1)
+
+    size = X_0.size()[0]
+
+    res = torch.cat((X_0,X_1,X_2)).reshape(size,3)
+
+    res = torch.softmax(res, dim=1)
+
+    return res
+
+def accuracyCalculator(predictions, labels):
+
+    max_probs = torch.argmax(predictions, dim=1)
+
+    res = torch.argmax(labels,dim=1).eq(max_probs)
+
+    return torch.count_nonzero(res).item()
 
 # we load all training, validation, and test datasets for the classification task
 train_dataset, train_label = pickle.load(open("data/part2_classification_train.data", "rb"))
@@ -40,21 +74,26 @@ test_label = torch.from_numpy(test_label)
 # Please do not forget to specify requires_grad=True for all parameters since they need to be trainable.
 
 # w1 defines the parameters between the input layer and the hidden layer
-w1 = . . .
 # Here you are expected to initialize w1 via the Normal distribution (mean=0, std=1).
-...
+w1 = torch.from_numpy(np.random.normal(0,1,64).astype(np.float32).reshape((64,1)))
+w1.requires_grad = True
+
 # b defines the bias parameters for the hidden layer
-b1 = . . .
 # Here you are expected to initialize b1 via the Normal distribution (mean=0, std=1).
-...
+
+b1 = torch.from_numpy(np.random.normal(0,1,1).astype(np.float32).reshape((1,1)))
+b1.requires_grad = True
+
 # w2 defines the parameters between the hidden layer and the output layer
-w2 = . . .
 # Here you are expected to initialize w2 via the Normal distribution (mean=0, std=1).
-...
+w2 = torch.from_numpy(np.random.normal(0,1,51).astype(np.float32).reshape((51,1)))
+w2.requires_grad = True
+
 # and finally, b2 defines the bias parameters for the output layer
-b2 = . . .
 # Here you are expected to initialize b2 via the Normal distribution (mean=0, std=1).
-...
+
+b2 = torch.from_numpy(np.random.normal(0,1,1).astype(np.float32).reshape((1,1)))
+b2.requires_grad = True
 
 
 
@@ -79,7 +118,11 @@ for iteration in range(1, ITERATION+1):
     # Using the forward_pass function, we are performing a forward pass over the network with the training data
     train_predictions = forward_pass(w1, b1, w2, b2, train_dataset)
     # here you are expected to calculate the MEAN cross-entropy loss with respect to the network predictions and the training label
-    train_mean_crossentropy_loss = ...
+
+    m = torch.log(train_predictions)*train_label
+    m = torch.sum(m,dim=1)
+    m = -1*m
+    train_mean_crossentropy_loss = torch.mean(m)
 
     
     train_loss_array.append(train_mean_crossentropy_loss.item())
@@ -93,17 +136,22 @@ for iteration in range(1, ITERATION+1):
     # with torch.no_grad() disables gradient operations, since during testing the validation dataset, we don't need to perform any gradient operations
     with torch.no_grad():
         # Here you are expected to calculate the accuracy score on the training dataset by using the training labels.
-        train_accuracy = ...
+        train_accuracy = accuracyCalculator(train_predictions,train_label) * 100 / train_dataset.size()[0]
 
         validation_predictions = forward_pass(w1, b1, w2, b2, validation_dataset)
         
         # Here you are expected to calculate the average/mean cross entropy loss for the validation datasets by using the validation dataset labels.
-        validation_mean_crossentropy_loss = ...
+
+        m = torch.log(validation_predictions) * validation_label
+        m = torch.sum(m, dim=1)
+        m = -1 * m
+        validation_mean_crossentropy_loss = torch.mean(m)
 
         validation_loss_array.append(validation_mean_crossentropy_loss.item())
 
         # Similarly, here, you are expected to calculate the accuracy score on the validation dataset
-        validation_accuracy = ...
+        validation_accuracy = accuracyCalculator(validation_predictions,validation_label) * 100 / validation_dataset.size()[0]
+
     
     print("Iteration : %d - Train Loss %.4f - Train Accuracy : %.2f - Validation Loss : %.4f Validation Accuracy : %.2f" % (iteration+1, train_mean_crossentropy_loss.item(), train_accuracy, validation_mean_crossentropy_loss.item(), validation_accuracy))
 
@@ -113,7 +161,9 @@ for iteration in range(1, ITERATION+1):
 with torch.no_grad():
     test_predictions = forward_pass(w1, b1, w2, b2, test_dataset)
     # Here you are expected to calculate the network accuracy score on the test dataset...
-    test_accuracy = ...
+
+    test_accuracy = torch.Tensor([accuracyCalculator(test_predictions,test_label) * 100 / test_dataset.size()[0]])
+
     print("Test accuracy : %.2f" % (test_accuracy.item()))
 
 # We plot the loss versus iteration graph for both datasets (training and validation)
