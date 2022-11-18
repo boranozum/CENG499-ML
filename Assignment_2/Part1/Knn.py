@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class KNN:
     def __init__(self, dataset, data_label, similarity_function, similarity_function_parameters=None, K=1):
         """
@@ -13,7 +16,29 @@ class KNN:
         self.similarity_function = similarity_function
         self.similarity_function_parameters = similarity_function_parameters
 
+    def majorityVote(self, indices):
+
+        labels = self.dataset_label[indices]
+
+        values, counts = np.unique(labels, return_counts=True)
+        ind = np.argmax(counts)
+
+        return values[ind]
+
     def predict(self, instance):
-        pass
+
+        params = [self.similarity_function, 1, self.dataset, instance[0]]
+
+        if type(self.similarity_function_parameters) is list:
+            params += self.similarity_function_parameters
+        else:
+            params += [self.similarity_function_parameters]
+
+        similarity_vec = np.apply_along_axis(*params)
+
+        neighbour_indices = np.argpartition(similarity_vec, -self.K)[-self.K:]
+
+        return self.majorityVote(neighbour_indices)
+
 
 
