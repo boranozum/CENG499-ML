@@ -1,5 +1,5 @@
 import numpy as np
-
+from Distance import Distance
 
 class KNN:
     def __init__(self, dataset, data_label, similarity_function, similarity_function_parameters=None, K=1):
@@ -27,16 +27,19 @@ class KNN:
 
     def predict(self, instance):
 
-        params = [self.similarity_function, 1, self.dataset, instance[0]]
+        params = [self.similarity_function, 1, self.dataset, instance]
 
         if type(self.similarity_function_parameters) is list:
             params += self.similarity_function_parameters
-        else:
+        elif self.similarity_function_parameters is not None:
             params += [self.similarity_function_parameters]
 
         similarity_vec = np.apply_along_axis(*params)
 
-        neighbour_indices = np.argpartition(similarity_vec, -self.K)[-self.K:]
+        neighbour_indices = np.argpartition(similarity_vec, self.K)[:self.K]
+
+        if self.similarity_function == Distance.calculateCosineDistance:
+            neighbour_indices = np.argpartition(similarity_vec, -self.K)[-self.K:]
 
         return self.majorityVote(neighbour_indices)
 
