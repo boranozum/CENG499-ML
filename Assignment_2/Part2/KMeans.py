@@ -32,10 +32,16 @@ class KMeans:
 
     def findDistance(self, x1, x2):
 
-        return ((x1[0]-x2[0])**2 + (x1[1]-x2[1])**2)**.5
+        # return ((x1[0]-x2[0])**2 + (x1[1]-x2[1])**2)**.5
+
+        cluster = np.array(x2)
+        s = (x1-cluster)**2
+
+        return s.sum()**.5
+
 
     def assignToCluster(self, row):
-        self.clusters[row[2]].append(row[:2])
+        self.clusters[row[-1]].append(row[:-1])
 
 
     def run(self):
@@ -47,7 +53,7 @@ class KMeans:
             self.cluster_centers[i] = initial_cluster_means[i].tolist()
 
         last_mean = np.array(list(self.cluster_centers.values()))
-        current_mean = np.zeros((self.K, 2))
+        current_mean = np.zeros((self.K, self.dataset.shape[1]))
 
         while not (current_mean == last_mean).all():
 

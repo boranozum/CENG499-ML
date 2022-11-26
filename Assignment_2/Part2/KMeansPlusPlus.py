@@ -22,9 +22,13 @@ class KMeansPlusPlus:
         min_distance = 99999999
 
         for i in range(self.K):
-            distance = ((sample[0] - self.cluster_centers[i][0]) ** 2 + (sample[1] - self.cluster_centers[i][1]) ** 2) ** .5
-            if min_distance > distance:
-                min_distance = distance
+            if self.cluster_centers[i] is not None:
+
+                center = np.array(self.cluster_centers[i])
+                distance = np.sum((sample-center)**2)**.5
+
+                if min_distance > distance:
+                    min_distance = distance
 
         return min_distance
 
@@ -42,14 +46,58 @@ class KMeansPlusPlus:
 
         return total_sum
 
+    def findDistance(self, x1, x2):
+
+        # return ((x1[0]-x2[0])**2 + (x1[1]-x2[1])**2)**.5
+
+        cluster = np.array(x2)
+        s = (x1-cluster)**2
+
+        return s.sum()**.5
+
+    def assignToCluster(self, row):
+        self.clusters[row[-1]].append(row[:-1])
+
     def run(self):
         """Kmeans++ algorithm implementation"""
 
         initial_mean = self.dataset[np.random.choice(self.dataset.shape[0], 1, replace=False), :]
+        self.cluster_centers[0] = initial_mean[0].tolist()
 
-        for i in range(self.K):
-            self.cluster_centers[i] = initial_mean[0].tolist()
+        for i in range(1, self.K):
 
+            d = np.apply_along_axis(self.calculateNearestDistance, 1, self.dataset)
 
+            max_distance_index = np.argmax(d)
+
+            self.cluster_centers[i] = self.dataset[max_distance_index].tolist()
+
+        last_mean = np.array(list(self.cluster_centers.values()))
+        current_mean = np.zeros((self.K, self.dataset.shape[1]))
+
+        while not (current_mean == last_mean).all():
+
+            last_mean = np.array(list(self.cluster_centers.values()))
+
+            current_clusters = np.apply_along_axis(self.findDistance, 1, self.dataset, self.cluster_centers[0])
+            self.clusters[0] = []
+
+            for i in range(1, self.K):
+                temp = np.apply_along_axis(self.findDistance, 1, self.dataset, self.cluster_centers[i])
+                current_clusters = np.column_stack((current_clusters, temp))
+                self.clusters[i] = []
+
+            minimum_distances = np.argmin(current_clusters, axis=1)
+
+            np.apply_along_axis(self.assignToCluster, 1, np.column_stack((self.dataset, minimum_distances)))
+
+            for i in range(self.K):
+
+                if len(self.clusters[i]) != 0:
+                    cluster = np.array(self.clusters[i])
+                    mean = np.mean(cluster, axis=0)
+                    self.cluster_centers[i] = mean
+
+            current_mean = np.array(list(self.cluster_centers.values()))
 
         return self.cluster_centers, self.clusters, self.calculateLoss()
