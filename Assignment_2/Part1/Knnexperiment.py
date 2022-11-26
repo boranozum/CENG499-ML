@@ -3,7 +3,9 @@ from Knn import KNN
 from Distance import Distance
 import numpy as np
 
-from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import accuracy_score
+
 
 dataset, labels = pickle.load(open("../data/part1_dataset.data", "rb"))
 
@@ -82,13 +84,11 @@ for config in configs:
 
             label_for_predicted = labels[test_index]
 
-            correct_predictions = np.equal(predicted,label_for_predicted)
+            accuracy = accuracy_score(label_for_predicted, predicted)
 
-            accuracy = np.sum(correct_predictions)
+            cv_accuracy += accuracy*100
 
-            cv_accuracy += (accuracy/len(correct_predictions))*100
-
-            print('Configuration: %d | Iteration: %d | Accuracy: %.2f' % (j,i,(accuracy/len(correct_predictions))*100))
+            print('Configuration: %d | Iteration: %d | Accuracy: %.2f' % (j,i,(accuracy*100)))
 
         iteration_accuracy.append(cv_accuracy/10)
 
@@ -109,7 +109,7 @@ for acc in config_accuracies:
         max_mean = mean
         selected_index = j-1
 
-    print(('Confidence interval of configuration %d : %.2f ' + u'\u00B1' + ' %.2f') % (j, np.mean(n), np.std(n)/(len(n)**.5)))
+    print(('Confidence interval of configuration %d : %.2f ' + u'\u00B1' + ' %.2f') % (j, np.mean(n), 1.96*np.std(n)/(len(n)**.5)))
 
     j+=1
 
