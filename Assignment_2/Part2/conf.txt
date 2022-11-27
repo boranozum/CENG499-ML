@@ -1,0 +1,41 @@
+Kmeans
+
+Confidence interval of K=2 at dataset1: 157.99± 0.00
+Confidence interval of K=2 at dataset2: 130.69± 0.00
+Confidence interval of K=3 at dataset1: 73.48± 0.00
+Confidence interval of K=3 at dataset2: 51.03± 0.00
+Confidence interval of K=4 at dataset1: 33.96± 0.00
+Confidence interval of K=4 at dataset2: 23.65± 0.00
+Confidence interval of K=5 at dataset1: 10.89± 0.00
+Confidence interval of K=5 at dataset2: 22.71± 0.01
+Confidence interval of K=6 at dataset1: 9.99± 0.00
+Confidence interval of K=6 at dataset2: 21.81± 0.02
+Confidence interval of K=7 at dataset1: 9.26± 0.00
+Confidence interval of K=7 at dataset2: 20.92± 0.02
+Confidence interval of K=8 at dataset1: 8.55± 0.02
+Confidence interval of K=8 at dataset2: 20.22± 0.05
+Confidence interval of K=9 at dataset1: 7.90± 0.06
+Confidence interval of K=9 at dataset2: 19.58± 0.09
+Confidence interval of K=10 at dataset1: 7.27± 0.04
+Confidence interval of K=10 at dataset2: 18.95± 0.09
+
+Kmeans++
+
+Confidence interval of K=2 at dataset1: 157.99± 0.00
+Confidence interval of K=2 at dataset2: 130.69± 0.00
+Confidence interval of K=3 at dataset1: 73.48± 0.00
+Confidence interval of K=3 at dataset2: 51.03± 0.00
+Confidence interval of K=4 at dataset1: 33.96± 0.00
+Confidence interval of K=4 at dataset2: 23.65± 0.00
+Confidence interval of K=5 at dataset1: 10.89± 0.00
+Confidence interval of K=5 at dataset2: 22.73± 0.01
+Confidence interval of K=6 at dataset1: 9.99± 0.00
+Confidence interval of K=6 at dataset2: 21.79± 0.01
+Confidence interval of K=7 at dataset1: 9.25± 0.00
+Confidence interval of K=7 at dataset2: 20.89± 0.01
+Confidence interval of K=8 at dataset1: 8.53± 0.01
+Confidence interval of K=8 at dataset2: 20.02± 0.03
+Confidence interval of K=9 at dataset1: 7.81± 0.01
+Confidence interval of K=9 at dataset2: 19.34± 0.01
+Confidence interval of K=10 at dataset1: 7.16± 0.03
+Confidence interval of K=10 at dataset2: 18.75± 0.03
