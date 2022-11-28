@@ -67,10 +67,11 @@ class KMeansPlusPlus:
         for i in range(1, self.K):
 
             d = np.apply_along_axis(self.calculateNearestDistance, 1, self.dataset)
+            d_squared = d**2
+            d_squared /= np.sum(d_squared)
+            next_selected_center = self.dataset[np.random.choice(self.dataset.shape[0], 1, replace=False, p=d_squared)]
 
-            max_distance_index = np.argmax(d)
-
-            self.cluster_centers[i] = self.dataset[max_distance_index].tolist()
+            self.cluster_centers[i] = next_selected_center.tolist()
 
         last_mean = np.array(list(self.cluster_centers.values()))
         current_mean = np.zeros((self.K, self.dataset.shape[1]))
