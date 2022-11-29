@@ -1,6 +1,4 @@
 import numpy as np
-import math
-from Distance import Distance
 
 
 class KMeansPlusPlus:

@@ -7,10 +7,13 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 import matplotlib.cm as cm
 
 
-
 def plot_dendrogram(model, **kwargs):
-    # Create linkage matrix and then plot the dendrogram
+    """
+    Function for drawing a dendogram with AgglomerativeCluster instance given as parameter
 
+    Taken from: https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
+    """
+    # Create linkage matrix and then plot the dendrogram
     # create the counts of samples under each node
     counts = np.zeros(model.children_.shape[0])
     n_samples = len(model.labels_)
@@ -31,9 +34,9 @@ def plot_dendrogram(model, **kwargs):
     dendrogram(linkage_matrix, **kwargs)
 
 
-
 dataset = pickle.load(open("../data/part3_dataset.data", "rb"))
 
+# 4 configurations that are tested as hyperparameter values
 configs = [
     {
         'K': 2,
@@ -57,11 +60,15 @@ configs = [
     }
 ]
 
+# For each configuration, performs a HAC clustering
 for config in configs:
 
+    # Creates a AgglomerativeClustering instance with the current configuration and runs the model
+    # to form the clusters
     clusters = AgglomerativeClustering(n_clusters=config['K'], linkage=config['linkage'],
                                        compute_distances=True, affinity=config['distance']).fit(dataset)
 
+    # From the formed clusters for each k value, calculates the average silhouette score and prints them
     silhouette_avg = silhouette_score(dataset, clusters.labels_)
     print(
         "For n_clusters =",
@@ -70,15 +77,16 @@ for config in configs:
         silhouette_avg,
     )
 
-    fig, ax1 = plt.subplots(1,1)
-    fig.set_size_inches(10, 7)
+    # The following code segment for plotting the silhouette scores are partially taken from:
+    # https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html
 
-    # The 1st subplot is the silhouette plot
-    # The silhouette coefficient can range from -1, 1 but in this example all
-    # lie within [-0.1, 1]
-    ax1.set_xlim([-0.1, 1])
+    fig, ax1 = plt.subplots(1,1)
+    fig.set_size_inches(7, 5)
+
+    # The silhouette coefficient can range from -1, 1 thus the x limits are arranged as -1, 1
+    ax1.set_xlim([-1, 1])
     # The (n_clusters+1)*10 is for inserting blank space between silhouette
-    # plots of individual clusters, to demarcate them clearly.
+    # plots of individual clusters, to display them clearly.
     ax1.set_ylim([0, len(dataset) + (config['K'] + 1) * 10])
 
     sample_silhouette_values = silhouette_samples(dataset, clusters.labels_)
@@ -118,14 +126,6 @@ for config in configs:
     ax1.axvline(x=silhouette_avg, color="red", linestyle="--")
 
     ax1.set_yticks([])  # Clear the yaxis labels / ticks
-    ax1.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
+    ax1.set_xticks([-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
 
 plt.show()
-
-
-
-    # plt.title("HAC Dendogram")
-    # # plot the top three levels of the dendrogram
-    # plot_dendrogram(clusters, truncate_mode="level", p=3)
-    # plt.xlabel("Number of points in node (or index of point if no parenthesis).")
-    # plt.show()
