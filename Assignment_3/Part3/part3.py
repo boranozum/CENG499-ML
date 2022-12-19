@@ -134,6 +134,7 @@ for train_index, test_index in outer_cv.split(dataset, labels):
 for model in results:
 
     print(model)
+
     print('hyperparameter_scores')
     for config in results[model]['hyperparameter_scores']:
         # calculate mean and confidence interval
