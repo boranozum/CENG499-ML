@@ -41,22 +41,22 @@ configs = {
 
 results = {
     'knn': {
-        "hyperparameter_scores": [],
+        "hyperparameter_scores": {},
         "mean_test_score": [],
         "f1_score": []
     },
     'svm': {
-        "hyperparameter_scores": [],
+        "hyperparameter_scores": {},
         "mean_test_score": [],
         "f1_score": []
     },
     'dt': {
-        "hyperparameter_scores": [],
+        "hyperparameter_scores": {},
         "mean_test_score": [],
         "f1_score": []
     },
     'rf': {
-        "hyperparameter_scores": [],
+        "hyperparameter_scores": {},
         "mean_test_score": [],
         "f1_score": []
     }
@@ -77,7 +77,10 @@ for train_index, test_index in outer_cv.split(dataset, labels):
     grid.fit(X_train_normalized, y_train)
     print(f"Fold {fold} - KNN - Inner CV completed")
     for i in range(4):
-        results['knn']['hyperparameter_scores'].append({'config': grid.cv_results_['params'][i], 'score': grid.cv_results_['mean_test_score'][i]})
+        if str(grid.cv_results_["params"][i]) not in results['knn']['hyperparameter_scores']:
+            results['knn']['hyperparameter_scores'][str(grid.cv_results_["params"][i])] = [grid.cv_results_["mean_test_score"][i]]
+        else:
+            results['knn']['hyperparameter_scores'][str(grid.cv_results_["params"][i])].append(grid.cv_results_["mean_test_score"][i])
 
     # knn evaluation
     knn = KNeighborsClassifier(**grid.best_params_)
@@ -90,7 +93,12 @@ for train_index, test_index in outer_cv.split(dataset, labels):
     grid.fit(X_train_normalized, y_train)
     print(f"Fold {fold} - SVM - Inner CV completed")
     for i in range(4):
-        results['svm']['hyperparameter_scores'].append({'config': grid.cv_results_['params'][i], 'score': grid.cv_results_['mean_test_score'][i]})
+        if str(grid.cv_results_["params"][i]) not in results['knn']['hyperparameter_scores']:
+            results['svm']['hyperparameter_scores'][str(grid.cv_results_["params"][i])] = [
+                grid.cv_results_["mean_test_score"][i]]
+        else:
+            results['svm']['hyperparameter_scores'][str(grid.cv_results_["params"][i])].append(
+                grid.cv_results_["mean_test_score"][i])
 
     # svm evaluation
     svm = SVC(**grid.best_params_)
@@ -103,7 +111,12 @@ for train_index, test_index in outer_cv.split(dataset, labels):
     grid.fit(X_train_normalized, y_train)
     print(f"Fold {fold} - DT - Inner CV completed")
     for i in range(4):
-        results['dt']['hyperparameter_scores'].append({'config': grid.cv_results_['params'][i], 'score': grid.cv_results_['mean_test_score'][i]})
+        if str(grid.cv_results_["params"][i]) not in results['knn']['hyperparameter_scores']:
+            results['dt']['hyperparameter_scores'][str(grid.cv_results_["params"][i])] = [
+                grid.cv_results_["mean_test_score"][i]]
+        else:
+            results['dt']['hyperparameter_scores'][str(grid.cv_results_["params"][i])].append(
+                grid.cv_results_["mean_test_score"][i])
 
     # dt evaluation
     dt = DecisionTreeClassifier(**grid.best_params_)
@@ -121,7 +134,13 @@ for train_index, test_index in outer_cv.split(dataset, labels):
 
     config_means = np.mean(config_means, axis=0)
     for i in range(4):
-        results['rf']['hyperparameter_scores'].append({'config': grid.cv_results_['params'][i], 'score': config_means[i]})
+        if str(grid.cv_results_["params"][i]) not in results['knn']['hyperparameter_scores']:
+            results['rf']['hyperparameter_scores'][str(grid.cv_results_["params"][i])] = [
+                grid.cv_results_["mean_test_score"][i]]
+        else:
+            results['rf']['hyperparameter_scores'][str(grid.cv_results_["params"][i])].append(
+                grid.cv_results_["mean_test_score"][i])
+
     print(f"Fold {fold} - RF - Inner CV completed")
     # rf evaluation
     best_rf_config = grid.cv_results_['params'][np.argmax(np.array(config_means))]
@@ -137,10 +156,10 @@ for model in results:
     print('hyperparameter_scores')
     for config in results[model]['hyperparameter_scores']:
         # calculate mean and confidence interval
-        mean_value = np.mean(config["score"])
-        std_value = np.std(config["score"])
-        confidence_interval = 1.96 * std_value / np.sqrt(len(config["score"]))
-        print(f"{config['config']} - {mean_value} +/- {confidence_interval}")
+        mean_value = np.mean(results[model]['hyperparameter_scores'][config])
+        std_value = np.std(results[model]['hyperparameter_scores'][config])
+        confidence_interval = 1.96 * std_value / np.sqrt(len(results[model]['hyperparameter_scores'][config]))
+        print(f"{config} - {mean_value} +/- {confidence_interval}")
 
     print('mean_test_score')
     mean_value = np.mean(results[model]['mean_test_score'])
@@ -154,6 +173,3 @@ for model in results:
     std_value = np.std(results[model]['f1_score'])
     confidence_interval = 1.96 * std_value / np.sqrt(len(results[model]['f1_score']))
     print(f"{mean_value} +/- {confidence_interval}")
-
-
-

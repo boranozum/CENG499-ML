@@ -1,0 +1,40 @@
+knn
+hyperparameter_scores
+{'metric': 'euclidean', 'n_neighbors': 3} - 0.6335519395503685 +/- 0.0047735883173054125
+{'metric': 'euclidean', 'n_neighbors': 5} - 0.652012568735271 +/- 0.004686614273240027
+{'metric': 'manhattan', 'n_neighbors': 3} - 0.6405166647963191 +/- 0.005923869969318959
+{'metric': 'manhattan', 'n_neighbors': 5} - 0.6576982755395953 +/- 0.0046983373669046
+mean_test_score
+0.6604029178879479 +/- 0.010352763795752298
+f1_score
+0.7768249642091104 +/- 0.007869310999603163
+svm
+hyperparameter_scores
+{'C': 1, 'kernel': 'rbf'} - 0.7139243631466726 +/- 0.0
+{'C': 1, 'kernel': 'sigmoid'} - 0.7001458871058243 +/- 0.0
+{'C': 10, 'kernel': 'rbf'} - 0.7151228818314442 +/- 0.0
+{'C': 10, 'kernel': 'sigmoid'} - 0.7001458871058243 +/- 0.0
+mean_test_score
+0.7052034069998142 +/- 0.004284067756845718
+f1_score
+0.8242709129947344 +/- 0.0024891241839048845
+dt
+hyperparameter_scores
+{'criterion': 'gini', 'max_depth': 3} - 0.689927056447088 +/- 0.0
+{'criterion': 'gini', 'max_depth': 5} - 0.7010548759959602 +/- 0.0
+{'criterion': 'entropy', 'max_depth': 3} - 0.6956188979912469 +/- 0.0
+{'criterion': 'entropy', 'max_depth': 5} - 0.6944360902255639 +/- 0.0
+mean_test_score
+0.7084132036227845 +/- 0.012219201840881308
+f1_score
+0.8050653456227289 +/- 0.010904805556183452
+rf
+hyperparameter_scores
+{'criterion': 'gini', 'max_depth': 3} - 0.706436987992369 +/- 0.0
+{'criterion': 'gini', 'max_depth': 5} - 0.7232274716642351 +/- 0.0
+{'criterion': 'entropy', 'max_depth': 3} - 0.7046414543822241 +/- 0.0
+{'criterion': 'entropy', 'max_depth': 5} - 0.721737178767815 +/- 0.0
+mean_test_score
+0.7264042485599371 +/- 0.004541320326263026
+f1_score
+0.8335516551640683 +/- 0.0024244928494180727
