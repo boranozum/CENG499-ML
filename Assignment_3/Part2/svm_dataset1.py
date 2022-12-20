@@ -7,6 +7,7 @@ from sklearn.inspection import DecisionBoundaryDisplay
 
 dataset, labels = pickle.load(open("../data/part2_dataset1.data", "rb"))
 
+# Configurations to be tested
 configurations = [
     {
         "kernel": "sigmoid",
@@ -26,12 +27,15 @@ configurations = [
     },
 ]
 
+# Classifier array for each configuration
 classifiers = []
 
+# Run the classifier for each configuration and store the results
 for configuration in configurations:
     clf = SVC(kernel=configuration["kernel"], C=configuration["C"]).fit(dataset, labels)
     classifiers.append(clf)
 
+# Plot the decision boundaries for each configuration
 f, ax = plt.subplots(2, 2, figsize=(10, 10))
 for i in range(2):
     for j in range(2):

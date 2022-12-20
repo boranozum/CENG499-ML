@@ -7,12 +7,27 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 def calculate_f1_score(model, x_test, y_test):
+    """
+    Calculates the F1 score for a given model and test set.
+    :param model: The model to be evaluated.
+    :param x_test:  The test set.
+    :param y_test:  The test labels.
+    :return:
+    """
+
+    # Predict the labels for the test set using the model
     y_pred = model.predict(x_test)
+
+    # Calculate the true positives, false positives and false negatives
     tp = np.sum(np.logical_and(y_pred == 1, y_test == 1))
     fp = np.sum(np.logical_and(y_pred == 1, y_test == 0))
     fn = np.sum(np.logical_and(y_pred == 0, y_test == 1))
+
+    # Calculate the precision and recall
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
+
+    # Calculate the F1 score
     f1_score = 2 * precision * recall / (precision + recall)
     return f1_score
 
@@ -20,6 +35,7 @@ data_path = "../data/credit.data"
 
 dataset, labels = DataLoader.load_credit_with_onehot(data_path)
 
+# Configurations to be tested
 configs = {
     'knn': {
         'n_neighbors': [3, 5],
@@ -39,6 +55,7 @@ configs = {
     }
 }
 
+# Result dict for each model
 results = {
     'knn': {
         "hyperparameter_scores": {},
@@ -62,12 +79,18 @@ results = {
     }
 }
 fold = 1
+
+# Outer CV loop with 3 splits and 5 repeats
 outer_cv = RepeatedStratifiedKFold(n_splits=3, n_repeats=5)
 for train_index, test_index in outer_cv.split(dataset, labels):
+
+    # Get the partitions for the current fold
     X_train, X_test = dataset[train_index], dataset[test_index]
     y_train, y_test = labels[train_index], labels[test_index]
 
+    # Inner CV loop with 5 splits and 5 repeats
     inner_cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=5)
+
     # min-max normalization
     X_train_normalized = -1 + (X_train - np.min(X_train)) * (1 - (-1)) / (np.max(X_train) - np.min(X_train))
     X_test_normalized = -1 + (X_test - np.min(X_train)) * (1 - (-1)) / (np.max(X_train) - np.min(X_train))
@@ -88,6 +111,7 @@ for train_index, test_index in outer_cv.split(dataset, labels):
     results['knn']['mean_test_score'].append(knn.score(X_test_normalized, y_test))
     results['knn']['f1_score'].append(calculate_f1_score(knn, X_test_normalized, y_test))
     print(f"Fold {fold} - KNN - Evaluation completed")
+
     # svm hyperparameter tuning
     grid = GridSearchCV(SVC(), configs['svm'], cv=inner_cv, scoring='accuracy')
     grid.fit(X_train_normalized, y_train)
@@ -106,6 +130,7 @@ for train_index, test_index in outer_cv.split(dataset, labels):
     results['svm']['mean_test_score'].append(svm.score(X_test_normalized, y_test))
     results['svm']['f1_score'].append(calculate_f1_score(svm, X_test_normalized, y_test))
     print(f"Fold {fold} - SVM - Evaluation completed")
+
     # dt hyperparameter tuning
     grid = GridSearchCV(DecisionTreeClassifier(), configs['dt'], cv=inner_cv, scoring='accuracy')
     grid.fit(X_train_normalized, y_train)
@@ -124,6 +149,7 @@ for train_index, test_index in outer_cv.split(dataset, labels):
     results['dt']['mean_test_score'].append(dt.score(X_test_normalized, y_test))
     results['dt']['f1_score'].append(calculate_f1_score(dt, X_test_normalized, y_test))
     print(f"Fold {fold} - DT - Evaluation completed")
+
     # rf hyperparameter tuning
     config_means = []
     for i in range(5):
@@ -142,6 +168,7 @@ for train_index, test_index in outer_cv.split(dataset, labels):
                 grid.cv_results_["mean_test_score"][i])
 
     print(f"Fold {fold} - RF - Inner CV completed")
+
     # rf evaluation
     best_rf_config = grid.cv_results_['params'][np.argmax(np.array(config_means))]
     rf = RandomForestClassifier(**best_rf_config)
@@ -149,13 +176,16 @@ for train_index, test_index in outer_cv.split(dataset, labels):
     results['rf']['mean_test_score'].append(rf.score(X_test_normalized, y_test))
     results['rf']['f1_score'].append(calculate_f1_score(rf, X_test_normalized, y_test))
     print(f"Fold {fold} - RF - Evaluation completed")
+
     fold += 1
+
+# For each model calculate the confidence intervals of the mean test score and f1 score and print them as well as
+# the hyperparameter scores
 for model in results:
 
     print(model)
     print('hyperparameter_scores')
     for config in results[model]['hyperparameter_scores']:
-        # calculate mean and confidence interval
         mean_value = np.mean(results[model]['hyperparameter_scores'][config])
         std_value = np.std(results[model]['hyperparameter_scores'][config])
         confidence_interval = 1.96 * std_value / np.sqrt(len(results[model]['hyperparameter_scores'][config]))
