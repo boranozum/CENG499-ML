@@ -48,4 +48,49 @@ class HMM:
         :return: the tuple (Q*, ln P(Q*|O,λ)), Q* is the most probable state sequence for the given O
         """
 
-        pass
+        # Initialization of delta array which will hold the probabilities and previous states
+        # with the first time step considering the equation (7) in the assignment pdf, and previous states of the first
+        # time step is initialized with None
+        delta = [{}]
+        for s in range(self.A.shape[0]):
+            delta[0][s] = {"prob": np.log(self.Pi[s]) + np.log(self.B[s, O[0]]), "prev": None}
+
+        # Loop over the time steps
+        for t in range(1, len(O)):
+            delta.append({})
+
+            # Loop over the states
+            for s in range(self.A.shape[0]):
+
+                # Determine the maximum probability of transitioning to the current state given the previous state and
+                # the previous state with the maximum probability considering the equation (8) in the assignment pdf
+                max_prob = delta[t-1][0]["prob"] + np.log(self.A[0, s])
+                max_prev = 0
+                for prev_s in range(1, self.A.shape[0]):
+                    prob = delta[t-1][prev_s]["prob"] + np.log(self.A[prev_s, s])
+                    if prob > max_prob:
+                        max_prob = prob
+                        max_prev = prev_s
+
+                # Update the delta array with the maximum probability and the previous state with the maximum probability
+                delta[t][s] = {"prob": max_prob + np.log(self.B[s, O[t]]), "prev": max_prev}
+
+        sequence = []
+
+        # Find the maximum probability value of the last time step
+        max_prob = max(value["prob"] for value in delta[-1].values())
+        prev = None
+
+        # Loop over the states in the last time step and determine the state with the maximum probability value
+        for s, s_info in delta[-1].items():
+            if s_info["prob"] == max_prob:
+                sequence.append(s)
+                prev = s
+                break
+
+        # Backtrack the previous states to determine the most probable state sequence
+        for t in range(len(delta) - 2, -1, -1):
+            sequence.insert(0, delta[t + 1][prev]["prev"])
+            prev = delta[t + 1][prev]["prev"]
+
+        return max_prob, sequence
