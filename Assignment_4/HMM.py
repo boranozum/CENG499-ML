@@ -19,7 +19,7 @@ class HMM:
         dp[0, :] = self.Pi * self.B[:, O[0]]
 
         # Sum of the probabilities of the first time step
-        c_t = np.log(np.sum(dp[0, :]))
+        c_t = np.log(1.0/np.sum(dp[0, :]))
 
         # Normalization of the first time step
         dp[0, :] /= np.sum(dp[0, :])
@@ -33,13 +33,13 @@ class HMM:
                 dp[t, s] = np.sum(dp[t-1, :] * self.A[:, s]) * self.B[s, O[t]]
 
             # Sum of the probabilities of the current time step
-            c_t += np.log(np.sum(dp[t, :]))
+            c_t += np.log(1.0/np.sum(dp[t, :]))
 
             # Normalization of the current time step
             dp[t, :] /= np.sum(dp[t, :])
 
         # Return the sum of ln c_t
-        return c_t
+        return -c_t
 
 
     def viterbi_log(self, O: list):
